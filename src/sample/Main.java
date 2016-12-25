@@ -1,9 +1,6 @@
 package sample;
 
-import javafx.animation.AnimationTimer;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -102,8 +99,11 @@ public class Main extends Application {
                                 new KeyValue(thisRandomCircle.layoutYProperty(), thisRandomCircle.getLayoutY())),
                         new KeyFrame(new Duration(600),
                                 // end is where the mouse is
-                                new KeyValue(thisRandomCircle.layoutXProperty(), (mouseXCoordinate - thisRandomCircle.getLayoutBounds().getMinX() - (thisRandomCircle.getLayoutBounds().getWidth() / 2) )),
-                                new KeyValue(thisRandomCircle.layoutYProperty(), (mouseYCoordinate - thisRandomCircle.getLayoutBounds().getMinY() - (thisRandomCircle.getLayoutBounds().getHeight() / 2) )))
+                                new KeyValue(thisRandomCircle.layoutXProperty(),
+                                        (mouseXCoordinate - thisRandomCircle.getLayoutBounds().getMinX() - (thisRandomCircle.getLayoutBounds().getWidth() / 2) )),
+                                new KeyValue(thisRandomCircle.layoutYProperty(),
+                                        (mouseYCoordinate - thisRandomCircle.getLayoutBounds().getMinY() - (thisRandomCircle.getLayoutBounds().getHeight() / 2) ),
+                                        Interpolator.EASE_OUT))
                 );
                 timeline.play();
                 mouseXCoordinate = 0;
@@ -111,6 +111,39 @@ public class Main extends Application {
             }
         });
 
+        // add randomness
+        AnimationTimer timer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                if ((now - lastTimeStamp) > ((Math.pow(10, 9) / 3 ))) {
+                    lastTimeStamp = now;
+                    System.out.println("We are in the timer");
+
+                    Node thisRandomCircle = circles.getChildren().get((int) (circles.getChildren().size() * random()));
+                    double randomXCoordinate = random() * scene.getWidth();
+                    double randomYCoordinate = random() * scene.getHeight();
+                    // thisRandomCircle.setVisible(false); // to test if we are doing anything
+
+                    Timeline timeline = new Timeline();
+                    timeline.getKeyFrames().addAll(
+                            new KeyFrame(Duration.ZERO,
+                                    // start is where the circle is now
+                                    new KeyValue(thisRandomCircle.layoutXProperty(), thisRandomCircle.getLayoutX()),
+                                    new KeyValue(thisRandomCircle.layoutYProperty(), thisRandomCircle.getLayoutY())),
+                            new KeyFrame(new Duration(600), // should change 600 to dynamic value based on distance to move!
+                                    // end is ... random
+                                    new KeyValue(thisRandomCircle.layoutXProperty(),
+                                            (randomXCoordinate - thisRandomCircle.getLayoutBounds().getMinX() - (thisRandomCircle.getLayoutBounds().getWidth() / 2) )),
+                                    new KeyValue(thisRandomCircle.layoutYProperty(),
+                                            (randomYCoordinate - thisRandomCircle.getLayoutBounds().getMinY() - (thisRandomCircle.getLayoutBounds().getHeight() / 2) ),
+                                            Interpolator.EASE_OUT))
+                    );
+                    timeline.play();
+                    System.out.println("sort of done with the timer timeline?!?");
+                }
+            }
+        };
+        timer.start();
 
 
         primaryStage.show();
